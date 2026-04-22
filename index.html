@@ -12,29 +12,46 @@ text-align:center;
 padding:30px;
 }
 .box{
-max-width:750px;
+max-width:900px;
 margin:auto;
 background:#ffffff22;
 padding:20px;
 border-radius:15px;
 }
 button{
-padding:10px 20px;
-margin:8px;
+padding:8px 14px;
+margin:5px;
 border:none;
 border-radius:8px;
 cursor:pointer;
 }
 .part{
 background:#ffffff22;
-padding:10px;
-margin:10px;
-border-radius:10px;
+padding:15px;
+margin:12px;
+border-radius:12px;
 }
 video{
-width:260px;
-border-radius:12px;
-margin-top:15px;
+width:220px;
+border-radius:10px;
+margin:10px;
+}
+#popup{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000000aa;
+}
+.popupbox{
+background:white;
+color:black;
+width:420px;
+margin:60px auto;
+padding:20px;
+border-radius:15px;
 }
 </style>
 </head>
@@ -44,62 +61,117 @@ margin-top:15px;
 <h1>🎬 Reel Cutter Tool</h1>
 
 <input type="file" id="videoFile" accept="video/*">
-<br><br>
-
 <button onclick="loadVideo()">Generate Reels</button>
 
 <p id="info"></p>
 
-<video id="preview" controls></video>
-
-<h2>Reels List</h2>
-
 <div id="list"></div>
+</div>
 
+<div id="popup">
+<div class="popupbox">
+<h2>Edit Reel</h2>
+
+<input type="text" id="editText" placeholder="Enter text">
+<br><br>
+
+<select id="color">
+<option value="white">White</option>
+<option value="red">Red</option>
+<option value="yellow">Yellow</option>
+<option value="black">Black</option>
+</select>
+
+<br><br>
+
+<video id="editPreview" controls></video>
+
+<div id="liveText"></div>
+
+<br>
+
+<button onclick="applyText()">Live Preview</button>
+<button onclick="closePopup()">Close</button>
+
+</div>
 </div>
 
 <script>
+let mainVideoURL = "";
+let currentEditVideo = "";
+
 function loadVideo(){
 let file = document.getElementById("videoFile").files[0];
+if(!file){ alert("Select video"); return; }
 
-if(!file){
-alert("Please select video");
-return;
-}
+mainVideoURL = URL.createObjectURL(file);
 
-let video = document.getElementById("preview");
-video.src = URL.createObjectURL(file);
+let tempVideo = document.createElement("video");
+tempVideo.src = mainVideoURL;
 
-video.onloadedmetadata = function(){
-
-let seconds = Math.floor(video.duration);
+tempVideo.onloadedmetadata = function(){
+let seconds = Math.floor(tempVideo.duration);
 let parts = Math.floor(seconds / 30);
 
 document.getElementById("info").innerText =
-"Video Length: " + Math.floor(seconds/60) + " min " + (seconds%60) + " sec | Total Reels: " + parts;
+"Total Reels: " + parts;
 
 let list = document.getElementById("list");
 list.innerHTML = "";
 
 for(let i=1;i<=parts;i++){
+
 list.innerHTML += `
 <div class="part">
-Part ${i}
+<h3>Part ${i}</h3>
+
+<video controls src="${mainVideoURL}"></video>
+<br>
+
+<button onclick="openPopup('${mainVideoURL}')">Edit</button>
+
+<button onclick="downloadVideo('${mainVideoURL}')">Download</button>
+
 <button onclick="this.parentElement.remove();renumber()">Delete</button>
-<button>Download</button>
-<button>Edit</button>
+
 </div>
 `;
-}
 
+}
 };
 }
 
 function renumber(){
-let all = document.querySelectorAll(".part");
+let all = document.querySelectorAll(".part h3");
 all.forEach((item,index)=>{
-item.childNodes[0].textContent = "Part " + (index+1) + " ";
+item.innerText = "Part " + (index+1);
 });
+}
+
+function downloadVideo(url){
+let a = document.createElement("a");
+a.href = url;
+a.download = "reel.mp4";
+a.click();
+}
+
+function openPopup(url){
+currentEditVideo = url;
+document.getElementById("popup").style.display="block";
+document.getElementById("editPreview").src = url;
+document.getElementById("liveText").innerHTML="";
+}
+
+function closePopup(){
+document.getElementById("popup").style.display="none";
+}
+
+function applyText(){
+let txt = document.getElementById("editText").value;
+let color = document.getElementById("color").value;
+
+document.getElementById("liveText").innerHTML =
+"<div style='color:"+color+";font-size:28px;margin-top:-60px;position:relative;'>"+txt+"</div>";
 }
 </script>
 
