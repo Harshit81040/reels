@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,25 +25,60 @@ border:none;
 border-radius:8px;
 cursor:pointer;
 }
+.part{
+background:#ffffff22;
+padding:10px;
+margin:10px;
+border-radius:10px;
+}
 </style>
 </head>
 <body>
 
 <div class="box">
 <h1>🎬 Reel Cutter Tool</h1>
-<p>Upload video and create reels</p>
 
-<input type="file"><br><br>
+<p>Enter video length in minutes:</p>
 
-<button>Generate Reels</button>
+<input type="number" id="minutes" placeholder="20">
+<br><br>
+
+<button onclick="generateReels()">Generate Reels</button>
 
 <h2>Reels List</h2>
 
-<p>Part 1</p>
-<p>Part 2</p>
-<p>Part 3</p>
+<div id="list"></div>
 
 </div>
+
+<script>
+function generateReels(){
+let min = document.getElementById("minutes").value;
+let totalSeconds = min * 60;
+let parts = Math.floor(totalSeconds / 30);
+
+let list = document.getElementById("list");
+list.innerHTML = "";
+
+for(let i=1;i<=parts;i++){
+list.innerHTML += `
+<div class="part">
+Part ${i}
+<button onclick="this.parentElement.remove();renumber()">Delete</button>
+<button>Download</button>
+<button>Edit</button>
+</div>
+`;
+}
+}
+
+function renumber(){
+let all = document.querySelectorAll(".part");
+all.forEach((item,index)=>{
+item.childNodes[0].textContent = "Part " + (index+1) + " ";
+});
+}
+</script>
 
 </body>
 </html>
