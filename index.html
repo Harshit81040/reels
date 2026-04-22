@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +11,7 @@ text-align:center;
 padding:30px;
 }
 .box{
-max-width:700px;
+max-width:750px;
 margin:auto;
 background:#ffffff22;
 padding:20px;
@@ -31,6 +30,11 @@ padding:10px;
 margin:10px;
 border-radius:10px;
 }
+video{
+width:260px;
+border-radius:12px;
+margin-top:15px;
+}
 </style>
 </head>
 <body>
@@ -38,12 +42,14 @@ border-radius:10px;
 <div class="box">
 <h1>🎬 Reel Cutter Tool</h1>
 
-<p>Enter video length in minutes:</p>
-
-<input type="number" id="minutes" placeholder="20">
+<input type="file" id="videoFile" accept="video/*">
 <br><br>
 
-<button onclick="generateReels()">Generate Reels</button>
+<button onclick="loadVideo()">Generate Reels</button>
+
+<p id="info"></p>
+
+<video id="preview" controls></video>
 
 <h2>Reels List</h2>
 
@@ -52,10 +58,24 @@ border-radius:10px;
 </div>
 
 <script>
-function generateReels(){
-let min = document.getElementById("minutes").value;
-let totalSeconds = min * 60;
-let parts = Math.floor(totalSeconds / 30);
+function loadVideo(){
+let file = document.getElementById("videoFile").files[0];
+
+if(!file){
+alert("Please select video");
+return;
+}
+
+let video = document.getElementById("preview");
+video.src = URL.createObjectURL(file);
+
+video.onloadedmetadata = function(){
+
+let seconds = Math.floor(video.duration);
+let parts = Math.floor(seconds / 30);
+
+document.getElementById("info").innerText =
+"Video Length: " + Math.floor(seconds/60) + " min " + (seconds%60) + " sec | Total Reels: " + parts;
 
 let list = document.getElementById("list");
 list.innerHTML = "";
@@ -70,6 +90,8 @@ Part ${i}
 </div>
 `;
 }
+
+};
 }
 
 function renumber(){
